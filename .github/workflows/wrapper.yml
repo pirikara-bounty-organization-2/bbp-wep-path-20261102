@@ -1,0 +1,11 @@
+name: Unprotected reusable-workflow wrapper
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  call-protected:
+    uses: ./.github/workflows/protected.yml
