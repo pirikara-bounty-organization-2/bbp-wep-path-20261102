@@ -6,10 +6,20 @@ on:
 
 permissions:
   contents: read
+  id-token: write
 
 jobs:
   marker:
     runs-on: ubuntu-latest
     steps:
+      - name: Print sanitized OIDC identity claims
+        shell: bash
+        run: |
+          response="$(curl --fail --silent --show-error \
+            -H "Authorization: bearer ${ACTIONS_ID_TOKEN_REQUEST_TOKEN}" \
+            "${ACTIONS_ID_TOKEN_REQUEST_URL}&audience=bbp-controlled")"
+          token="$(jq -r '.value' <<<"${response}")"
+          payload="$(cut -d. -f2 <<<"${token}")"
+          OIDC_PAYLOAD="${payload}" python3 -c 'import base64,json,os; p=os.environ["OIDC_PAYLOAD"]; p += "=" * (-len(p) % 4); d=json.loads(base64.urlsafe_b64decode(p)); print(json.dumps({k:d.get(k) for k in ("actor","event_name","repository","workflow_ref","job_workflow_ref","sub","aud")}, sort_keys=True))'
       - name: Emit protected marker
         run: printf '%s\n' 'BBP_WEP_PROTECTED_EXECUTED'
