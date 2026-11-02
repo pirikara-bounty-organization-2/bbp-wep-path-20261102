@@ -1,0 +1,14 @@
+name: Open marker
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  marker:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Emit open marker
+        run: printf '%s\n' 'BBP_WEP_OPEN_EXECUTED'
